@@ -29,7 +29,7 @@
 -compile({no_auto_import,[error/2]}).
 
 %%%_* Includes =================================================================
-
+-include_lib("kernel/include/logger.hrl").
 -include("otp_workarounds.hrl").
 
 %%%_* Defines ==================================================================
@@ -146,7 +146,7 @@ respond(Req, Code, Data) ->
 
 configured_port() ->
   Port = os:getenv("EDTS_PORT", ?EDTS_PORT_DEFAULT),
-  edts_log:debug("Using EDTS port ~p from file.", [Port]),
+  ?LOG_DEBUG("Using EDTS port ~p from file.", [Port]),
   list_to_integer(Port).
 
 %%%_* Emacs ====================================================================

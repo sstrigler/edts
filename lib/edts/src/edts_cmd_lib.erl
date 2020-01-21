@@ -33,7 +33,7 @@
           validate/2]).
 
 %%%_* Includes =================================================================
-
+-include_lib("kernel/include/logger.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 %%%_* Defines ==================================================================
@@ -67,7 +67,7 @@ exists_p(Ctx, Keys) ->
   case lists:partition(F, Keys) of
     {_, []}       -> true;
     {_, NoExists} ->
-      edts_log:debug("resource_exists failed: ~p", [NoExists]),
+      ?LOG_DEBUG("resource_exists failed: ~p", [NoExists]),
       false
   end.
 
@@ -91,8 +91,8 @@ validate(Ctx0, Keys) ->
             {ok, Value} ->
               orddict:store(Name, Value, Ctx);
             {error, Rsn} ->
-              edts_log:error("API input validation failed. Key ~p, Rsn: ~p",
-                             [Key, Rsn]),
+              ?LOG_ERROR("API input validation failed. Key ~p, Rsn: ~p",
+                         [Key, Rsn]),
               throw({error, Key})
           end
       end,
@@ -108,7 +108,7 @@ validate(Ctx0, Keys) ->
                 N
             end,
       Value = orddict:fetch(Key, Ctx0),
-      edts_log:debug("Invalid Request, ~nKey: ~p~nValue: ~p", [Key, Value]),
+      ?LOG_DEBUG("Invalid Request, ~nKey: ~p~nValue: ~p", [Key, Value]),
       E
   end.
 
@@ -247,7 +247,7 @@ enum_list_validate(Ctx, Props) ->
       case lists:partition(Filter, Vals) of
         {_, []} -> {ok, Vals};
         {_, Invalid} ->
-          edts_log:debug("resource_exists failed: ~p", [Invalid]),
+          ?LOG_DEBUG("resource_exists failed: ~p", [Invalid]),
           {error, {illegal, Invalid}}
       end
   end.

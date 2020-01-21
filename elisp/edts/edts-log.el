@@ -27,7 +27,8 @@
 
 (require 'dash)
 
-(defconst edts-log-default-level 'info)
+(defconst edts-log-default-level 'info
+  "The current EDTS log-level.")
 
 (defvar edts-log-inhibit nil)
 
@@ -41,9 +42,6 @@
 	  (const info)
 	  (const debug))
   :group 'edts)
-
-(defconst edts-log-default-level 'error
-  "The current EDTS log-level.")
 
 (defconst edts-log-levels
   '((error   . 0)

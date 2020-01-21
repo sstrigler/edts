@@ -34,6 +34,7 @@
 
 
 %%%_* Includes =================================================================
+-include_lib("kernel/include/logger.hrl").
 
 %%%_* Defines ==================================================================
 %%%_* Types ====================================================================
@@ -70,18 +71,18 @@ cmd_module(Cmd) ->
   list_to_atom("edts_cmd_" ++ atom_to_list(Cmd)).
 
 do_run(Cmd, Input) ->
-  edts_log:debug("Validating input for command ~p:~n~p", [Cmd, Input]),
+  ?LOG_DEBUG("Validating input for command ~p:~n~p", [Cmd, Input]),
   {ok, Ctx} = edts_cmd_lib:validate(Input, Cmd:spec()),
-  edts_log:debug("Running Command ~p with Ctx ~p", [Cmd, Input]),
+  ?LOG_DEBUG("Running Command ~p with Ctx ~p", [Cmd, Input]),
   Result = Cmd:execute(Ctx),
-  edts_log:debug("Command ~p returned ~p", [Cmd, Result]),
+  ?LOG_DEBUG("Command ~p returned ~p", [Cmd, Result]),
   Result.
 
 plugin_do_run(Node, Plugin, Cmd, Input) ->
-  edts_log:debug("Validating input for ~p command ~p:~n~p",
+  ?LOG_DEBUG("Validating input for ~p command ~p:~n~p",
                  [Plugin, Cmd, Input]),
   Ctx = plugin_convert_params(Input, Plugin:spec(Cmd, orddict:size(Input))),
-  edts_log:debug("Running ~p command ~p with Ctx ~p", [Plugin, Cmd, Input]),
+  ?LOG_DEBUG("Running ~p command ~p with Ctx ~p", [Plugin, Cmd, Input]),
   case edts:call(Node, Plugin, Cmd, Ctx) of
     %% The call terminated badly
     {error, E} ->
