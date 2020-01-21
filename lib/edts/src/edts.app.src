@@ -4,8 +4,7 @@
   {registered, []},
   {applications, [kernel,
                   stdlib,
-                  sasl,
-                  mochiweb
+                  cowboy
                  ]},
   {mod, {edts_app, []}},
   {env, [{log_level, info}]}

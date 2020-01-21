@@ -50,7 +50,7 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-  Mochiweb        = child_spec(edts_mochiweb),
+  HTTPServer      = child_spec(edts_cowboy),
   Edts            = child_spec(edts_server),
 
   Formatters0     = lists:flatmap(fun edts_plugins:event_formatters/1,
@@ -63,7 +63,7 @@ init([]) ->
                                   edts_plugins:names()),
   PluginSpecs     = [child_spec(Plugin) || Plugin <- PluginServices],
 
-  Children = [EdtsEvent, Edts, Mochiweb] ++ PluginSpecs,
+  Children = [EdtsEvent, Edts, HTTPServer] ++ PluginSpecs,
   {ok, { {one_for_one, 5, 10}, Children} }.
 
 
