@@ -45,7 +45,6 @@
 
 %%%_* Includes =================================================================
 -include_lib("kernel/include/logger.hrl").
--include("otp_workarounds.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 %%%_* Defines ==================================================================
@@ -314,9 +313,9 @@ do_init_node(ProjectName,
 
     start_services(Node, [edts_code] ++ PluginRemoteServices)
   catch
-    ?EXCEPTION(C,E,S) ->
+    C:E:S ->
       ?LOG_ERROR("~p initialization crashed with ~p:~p~nStacktrace:~n~p",
-                     [Node, C, E, ?GET_STACK(S)]),
+                 [Node, C, E, S]),
       {error, E}
   end.
 
