@@ -101,7 +101,7 @@ node_reachable(Node) ->
 %% edts-instance.
 %% @end
 %%
--spec nodes() -> [node()].
+-spec nodes() -> {ok, [node()]}.
 %%------------------------------------------------------------------------------
 nodes() ->
   edts_server:nodes().
