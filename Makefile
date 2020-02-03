@@ -17,25 +17,21 @@ $(REBAR3):
 	curl -LO https://s3.amazonaws.com/rebar3/rebar3
 	chmod a+x rebar3
 
-.PHONY: compile
-compile: $(REBAR3)
-	@$(REBAR3) compile
-
-.PHONY: release
-release: $(REBAR3)
-	@$(REBAR3) release
+.PHONY: compile release dialyzer
+compile release dialyzer: $(REBAR3)
+	@$(REBAR3) $@
 
 .PHONY: clean
 clean: $(REBAR3)
 	@$(REBAR3) clean
 	rm -rfv elisp/*/*.elc
 
-.PHONY: dialyzer
-dialyzer: $(REBAR3)
-	@$(REBAR3) dialyzer
+.PHONY: xref
+xref: $(REBAR3)
+	@$(REBAR3) as test xref
 
 .PHONY: test
-test: apps-test dialyzer integration-tests ert
+test: apps-test xref dialyzer integration-tests ert
 
 .PHONY: apps-test
 apps-test: $(REBAR3)
