@@ -42,8 +42,12 @@ spec() ->
   [nodename].
 
 execute(Ctx) ->
-    Node = orddict:fetch(nodename, Ctx),
-    edts:call(Node, edts_code, modules, []).
+  Node = orddict:fetch(nodename, Ctx),
+  case edts:call(Node, edts_code, modules, []) of
+    {ok, Modules} ->
+      {ok, [atom_to_binary(M, utf8) || M <- Modules]};
+    {error, _} = Err -> Err
+  end.
 
 %%%_* Internal functions =======================================================
 

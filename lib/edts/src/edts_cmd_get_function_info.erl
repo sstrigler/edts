@@ -50,10 +50,22 @@ execute(Ctx) ->
                            edts_code,
                            get_function_info,
                            [Module, Function, Arity]),
-    {value, {source, Src}, Other} = lists:keytake(source, 1, Info),
-    {ok, {struct, [{source, list_to_binary(Src)}|Other]}}.
+    {ok, maps:from_list(lists:map(fun format_element/1, Info))}.
 
 %%%_* Internal functions =======================================================
+
+format_element({module, M}) ->
+  {<<"module">>, atom_to_binary(M, utf8)};
+format_element({function, F}) ->
+  {<<"function">>, atom_to_binary(F, utf8)};
+format_element({arity, A}) ->
+  {<<"arity">>, A};
+format_element({exported, ExportedP}) ->
+  {<<"exported">>, ExportedP};
+format_element({source, Source}) ->
+  {<<"source">>, list_to_binary(Source)};
+format_element({line, Line}) ->
+  {<<"line">>, Line}.
 
 %%%_* Emacs ============================================================
 %%% Local Variables:

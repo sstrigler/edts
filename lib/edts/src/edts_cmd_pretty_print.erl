@@ -51,7 +51,7 @@ execute(Ctx) ->
     RecF = fun(_A, _N) -> no end,
     PPStr =
       lists:flatten(io_lib_pretty:print(Term, Indent, MaxCol, -1, -1, RecF)),
-    {ok, [{return, list_to_binary(PPStr)}]}
+    {ok, #{<<"return">> => list_to_binary(PPStr)}}
   catch
     _:Error -> {error, Error}
   end.

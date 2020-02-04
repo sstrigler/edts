@@ -4,9 +4,11 @@
   {registered, []},
   {applications, [kernel,
                   stdlib,
+                  syntax_tools,
                   cowboy,
+                  jsone,
                   eunit
                  ]},
   {mod, {edts_app, []}},
-  {env, [{log_level, info}]}
+  {env, []}
  ]}.

@@ -46,17 +46,19 @@ execute(Ctx) ->
     Filename = orddict:fetch(file, Ctx),
     {ok, {Result, {Errors0, Warnings0}}} =
         edts:call(Node, edts_code, compile_and_load, [Filename]),
-    Errors   = {array, [format_error(Error) || Error <- Errors0]},
-    Warnings = {array, [format_error(Warning) || Warning <- Warnings0]},
-    {ok, {struct, [{result, Result}, {warnings, Warnings}, {errors, Errors}]}}.
+    Errors   = [format_error(Error) || Error <- Errors0],
+    Warnings = [format_error(Warning) || Warning <- Warnings0],
+    {ok, #{<<"result">> => atom_to_binary(Result, utf8),
+           <<"warnings">> => Warnings,
+           <<"errors">> => Errors}}.
 
 %%%_* Internal functions =======================================================
 
 format_error({Type, File, Line, Desc}) ->
-    [ {type, Type}
-    , {file, list_to_binary(File)}
-    , {line, Line}
-    , {description, list_to_binary(Desc)}].
+  #{ <<"type">> => atom_to_binary(Type, utf8)
+   , <<"file">> => list_to_binary(File)
+   , <<"line">> => Line
+   , <<"description">> => list_to_binary(Desc)}.
 
 
 %%%_* Emacs ============================================================

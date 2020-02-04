@@ -56,9 +56,10 @@
         ]).
 
 -define(AVAILABLE_PLUGINS,
-        [<<"dialyzer">>,
-         <<"eunit">>,
-         <<"xref">>
+        [<<"edts_debug">>,
+         <<"edts_dialyzer">>,
+         <<"edts_eunit">>,
+         <<"edts_xref">>
         ]).
 
 %%%_* Types ====================================================================
@@ -97,6 +98,8 @@ from_json(Req0, State) ->
   InputCtx = case Body of
                <<>> ->
                  orddict:new();
+               <<"null">> ->
+                 orddict:new();
                _ ->
                  case jsone:decode(Body, [{object_format, proplist}]) of
                    [{}] ->
@@ -112,18 +115,28 @@ from_json(Req0, State) ->
         command ->
           edts_cmd:run(Cmd, InputCtx);
         plugin ->
-          Plugin = binary_to_atom(cowboy_req:binding(plugin, Req0), utf8),
+          Plugin = binary_to_atom(cowboy_req:binding(plugin, Req1), utf8),
           edts_cmd:plugin_run(Plugin, Cmd, InputCtx)
       end,
-  Req = case R of
-          ok ->
-            Req1;
-          {ok, undefined} ->
-            Req1;
-          {ok, Data} ->
-            cowboy_req:set_resp_body(jsone:encode(Data), Req1)
-        end,
-  {true, Req, State}.
+  Data = case R of
+          ok -> <<"{}">>;
+          {ok, D} ->
+             ?LOG_DEBUG("Trying to encode: ~p", [D]),
+             try jsone:encode(D) of
+                 Enc -> Enc
+             catch
+               {'EXIT', E} ->
+                 ?LOG_ERROR(#{error => E,
+                              data => D,
+                              cmd => Cmd
+                             }),
+                 <<"{}">>
+             end;
+           {error, Err} ->
+             ?LOG_ERROR(#{error => Err, cmd => Cmd, input_ctx => InputCtx}),
+             <<"{}">>
+         end,
+  {true, cowboy_req:set_resp_body(Data, Req1), State}.
 
 %%%_* Internal functions =======================================================
 

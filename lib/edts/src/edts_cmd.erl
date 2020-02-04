@@ -28,10 +28,8 @@
 %%%_* Exports ==================================================================
 
 %% API
-%% Webmachine callbacks
 -export([run/2,
          plugin_run/3]).
-
 
 %%%_* Includes =================================================================
 -include_lib("kernel/include/logger.hrl").

@@ -43,7 +43,7 @@ spec() ->
 
 execute(_) ->
   {ok, Nodes} = edts:nodes(),
-  {ok, [{nodes, Nodes}]}.
+  {ok, #{<<"nodes">> => [atom_to_binary(N, utf8) || N <- Nodes]}}.
 
 %%%_* Internal functions =======================================================
 

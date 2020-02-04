@@ -295,7 +295,10 @@ parse_expressions(String) ->
 %% Returns information on M.
 %% @end
 -spec get_module_info(M::module(), Level::basic | detailed) ->
-        {ok, [{atom(), term()}]} |
+        {ok, [ {module, module()} |
+               {exports, [[{function, function()} | {arity, arity()}]]} |
+               {source, string()}
+             ]} |
         {error, {not_found, module()}}.
 %%------------------------------------------------------------------------------
 get_module_info(M, Level) ->
@@ -318,15 +321,16 @@ do_get_module_info(M, detailed) ->
   case code:get_object_code(M) of
     {M, Bin, _File} ->
       {ok, {M, Chunks}} = beam_lib:chunks(Bin, [abstract_code]),
-      {abstract_code, {_, A}} = lists:keyfind(abstract_code, 1, Chunks),
-      Abstract = lists:map(fun erl_parse:anno_to_term/1, A),
+      {abstract_code, {_, Abst}} = lists:keyfind(abstract_code, 1, Chunks),
+      Abstract = lists:map(fun erl_parse:anno_to_term/1, Abst),
       {ok, Basic} = do_get_module_info(M, basic),
 
       {source, Source} = lists:keyfind(source, 1, Basic),
 
       Acc0 = orddict:from_list([ {cur_file,    Source}
                                , {compile_cwd, get_compile_cwd(M, Abstract)}
-                               , {exports,     M:module_info(exports)}
+                               , {exports,     [[{function, F}, {arity, A}]
+                                                || {F, A} <- M:module_info(exports)]}
                                , {imports,     []}
                                , {includes,    []}
                                , {functions,   []}
@@ -1025,7 +1029,7 @@ parse_abstract_function_test_() ->
   Arity = 1,
   Line = 1337,
   CurFile = "/foo/test.erl",
-  Exports = [{bar, 1}],
+  Exports = [[{function, bar}, {arity, 1}]],
   meck:unload(),
   meck:new(Mod, [no_link, non_strict]),
   meck:expect(Mod, Fun, fun(_) -> ok end),

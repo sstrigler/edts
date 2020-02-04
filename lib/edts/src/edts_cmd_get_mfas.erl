@@ -45,13 +45,22 @@ execute(Ctx) ->
   MFAStrings = orddict:fetch(expressions, Ctx),
   {ok, lists:filtermap(fun(MFAString) ->
                            case edts_code:string_to_mfa(MFAString) of
-                             {ok, MFA}  -> {true, MFA};
+                             {ok, MFA}  ->
+                                   {true, maps:from_list(convert_mfas(MFA))};
                              {error, _} -> false
                            end
                        end,
                        MFAStrings)}.
 
 %%%_* Internal functions =======================================================
+convert_mfas([]) ->
+    [];
+convert_mfas([{module, M}|T]) when is_atom(M) ->
+    [{<<"module">>, atom_to_binary(M, utf8)}|convert_mfas(T)];
+convert_mfas([{function, F}|T]) when is_atom(F) ->
+    [{<<"function">>, atom_to_binary(F, utf8)}|convert_mfas(T)];
+convert_mfas([{arity, A}|T]) when is_integer(A) ->
+    [{<<"arity">>, A}|convert_mfas(T)].
 
 %%%_* Emacs ====================================================================
 %%% Local Variables:

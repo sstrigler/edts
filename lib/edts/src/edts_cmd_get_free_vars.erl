@@ -44,18 +44,18 @@ spec() ->
 execute(Ctx) ->
   Code = orddict:fetch(code, Ctx),
   case edts_code:free_vars(Code) of
-    {ok, Vars}      -> {ok, [{vars, Vars}]};
+    {ok, Vars}      -> {ok, #{<<"vars">> => Vars}};
     {error, Errors} ->
-      {ok, [{errors, [format_error(Err) || Err <- Errors]}]}
+      {ok, #{<<"errors">> => [format_error(Err) || Err <- Errors]}}
   end.
 
 %%%_* Internal functions =======================================================
 
 format_error({Type, File, Line, Desc}) ->
-  [ {type, Type}
-  , {file, list_to_binary(File)}
-  , {line, Line}
-  , {description, list_to_binary(Desc)}].
+  #{ <<"type">> => atom_to_binary(Type, utf8)
+   , <<"file">> => list_to_binary(File)
+   , <<"line">> => Line
+   , <<"description">> => list_to_binary(Desc)}.
 
 
 %%%_* Emacs ====================================================================
