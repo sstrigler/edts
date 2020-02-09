@@ -42,24 +42,17 @@
 -define(EDTS_PORT_DEFAULT, 4587).
 
 -define(AVAILABLE_CMDS,
-        [<<"compile_and_load">>,
-         <<"get_event">>,
-         <<"get_free_vars">>,
-         <<"get_function_info">>,
-         <<"get_mfas">>,
-         <<"get_module_info">>,
-         <<"get_modules">>,
-         <<"get_nodes">>,
-         <<"init_node">>,
-         <<"pretty_print">>,
-         <<"run_eunit">>
-        ]).
-
--define(AVAILABLE_PLUGINS,
-        [<<"edts_debug">>,
-         <<"edts_dialyzer">>,
-         <<"edts_eunit">>,
-         <<"edts_xref">>
+        [compile_and_load,
+         get_event,
+         get_free_vars,
+         get_function_info,
+         get_mfas,
+         get_module_info,
+         get_modules,
+         get_nodes,
+         init_node,
+         pretty_print,
+         run_eunit
         ]).
 
 %%%_* Types ====================================================================
@@ -84,10 +77,10 @@ allowed_methods(Req, State) ->
 
 forbidden(Req, command = State) ->
   Cmd = cowboy_req:binding(command, Req),
-  {not lists:member(Cmd, ?AVAILABLE_CMDS), Req, State};
+  {not lists:member(binary_to_atom(Cmd, utf8), ?AVAILABLE_CMDS), Req, State};
 forbidden(Req, plugin = State) ->
   Plg = cowboy_req:binding(plugin, Req),
-  {not lists:member(Plg, ?AVAILABLE_PLUGINS), Req, State}.
+  {not lists:member(binary_to_atom(Plg, utf8), edts_plugins:names()), Req, State}.
 
 content_types_accepted(Req, State) ->
   {[{{ <<"application">>, <<"json">>, '*'}, from_json}], Req, State}.
@@ -113,10 +106,10 @@ from_json(Req0, State) ->
              end,
   R = case State of
         command ->
-          edts_cmd:run(Cmd, InputCtx);
+          edts_cmd:execute(Cmd, InputCtx);
         plugin ->
           Plugin = binary_to_atom(cowboy_req:binding(plugin, Req1), utf8),
-          edts_cmd:plugin_run(Plugin, Cmd, InputCtx)
+          edts_plugins:execute(Plugin, Cmd, InputCtx)
       end,
   Data = case R of
           ok -> <<"{}">>;
