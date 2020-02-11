@@ -6,7 +6,7 @@
                   stdlib,
                   syntax_tools,
                   cowboy,
-                  jsone,
+                  lejson,
                   eunit
                  ]},
   {mod, {edts_app, []}},

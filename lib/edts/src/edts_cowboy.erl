@@ -94,14 +94,20 @@ from_json(Req0, State) ->
                <<"null">> ->
                  orddict:new();
                _ ->
-                 case jsone:decode(Body, [{object_format, proplist}]) of
-                   [{}] ->
+                 case lejson:decode(Body, #{keys => atom}) of
+                   {error, not_json} ->
+                     ?LOG_ERROR(#{error => json_decode,
+                                  data => Body
+                                 }),
                      orddict:new();
-                   null ->
-                     orddict:new();
-                   Decoded ->
-                     orddict:from_list([{binary_to_atom(K, utf8), convert_type(V)}
-                                        || {K, V} <- Decoded])
+                   Decoded when is_list(Decoded) ->
+                         ?LOG_NOTICE("XXX_SWO: Decoded list ~p", [Decoded]),
+                     orddict:from_list([{K, convert_type(V)}
+                                        || {K, V} <- Decoded]);
+                   Decoded when is_map(Decoded) ->
+                         ?LOG_NOTICE("XXX_SWO: Decoded map ~p", [Decoded]),
+                     orddict:from_list([{K, convert_type(V)}
+                                        || {K, V} <- maps:to_list(Decoded)])
                  end
              end,
   R = case State of
@@ -112,10 +118,8 @@ from_json(Req0, State) ->
           edts_plugins:execute(Plugin, Cmd, InputCtx)
       end,
   Data = case R of
-          ok -> <<"{}">>;
           {ok, D} ->
-             ?LOG_DEBUG("Trying to encode: ~p", [D]),
-             try jsone:encode(D) of
+             try lejson:encode(D) of
                  Enc -> Enc
              catch
                {'EXIT', E} ->
@@ -146,8 +150,10 @@ convert_type(V) when is_binary(V) ->
 convert_type(V) when is_atom(V) ->
   atom_to_list(V);
 convert_type(L) when is_list(L) ->
-  [convert_type(V) || V <- L].
-
+  [convert_type(V) || V <- L];
+convert_type(E) ->
+  ?LOG_ERROR(#{unknown_type => E}),
+  undefined.
 
 
 %%%_* Emacs ====================================================================

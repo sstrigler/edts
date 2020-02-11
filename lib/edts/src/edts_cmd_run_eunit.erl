@@ -41,13 +41,16 @@
 spec() ->
   [nodename, module].
 
+-spec execute(edts_cmd:ctx()) -> {ok, #{passed => [edts_cmd:issue()],
+                                        failed => [edts_cmd:issue()]}}.
+
 execute(Ctx) ->
     Node   = orddict:fetch(nodename, Ctx),
     Module = orddict:fetch(module, Ctx),
     {ok, {ok, Result}} = edts:call(Node, edts_eunit, run_tests, [Module]),
     {Passed, Failed} = lists:partition(fun passed_test_p/1, Result),
-    {ok, #{<<"passed">> => [format_test(Test) || Test <- Passed],
-           <<"failed">> => [format_test(Test) || Test <- Failed]}}.
+    {ok, #{passed => lists:map(fun format_test/1, Passed),
+           failed => lists:map(fun format_test/1, Failed)}}.
 
 %%%_* Internal functions =======================================================
 
@@ -55,10 +58,10 @@ passed_test_p({Type, _, _, _}) ->
     Type =:= 'passed-test'.
 
 format_test({Type, File, Line, Desc}) ->
-    #{ <<"type">> => atom_to_binary(Type, utf8)
-     , <<"file">> => list_to_binary(File)
-     , <<"line">> => Line
-     , <<"description">> => unicode:characters_to_binary(Desc)}.
+    #{ type => Type
+     , file => File
+     , line => Line
+     , description => Desc}.
 
 
 %%%_* Emacs ============================================================

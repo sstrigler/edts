@@ -30,6 +30,8 @@
 %% API
 -export([execute/2]).
 
+-export_type([ctx/0, issue/0]).
+
 %%%_* Includes =================================================================
 -include_lib("kernel/include/logger.hrl").
 
@@ -37,8 +39,16 @@
 %%%_* Types ====================================================================
 
 -type ctx() :: orddict:orddict(atom(), string()).
+-type issue() :: #{type => atom(),
+                   file => string(),
+                   line => pos_integer(),
+                   description => string()}.
+
 -callback spec() -> [atom()].
--callback execute(ctx()) -> ok | {ok, term()}.
+-callback execute(ctx()) -> {ok,
+                             #{atom() => term()} |
+                             [atom()] |
+                             [map()]}.
 
 %%%_* API ======================================================================
 

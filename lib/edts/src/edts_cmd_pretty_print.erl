@@ -41,6 +41,8 @@
 spec() ->
   [string, indent, max_column].
 
+-spec execute(edts_cmd:ctx()) -> {ok, #{return => string()}}.
+
 execute(Ctx) ->
   String = orddict:fetch(string, Ctx),
   Indent = orddict:fetch(indent, Ctx),
@@ -51,7 +53,7 @@ execute(Ctx) ->
     RecF = fun(_A, _N) -> no end,
     PPStr =
       lists:flatten(io_lib_pretty:print(Term, Indent, MaxCol, -1, -1, RecF)),
-    {ok, #{<<"return">> => list_to_binary(PPStr)}}
+    {ok, #{return => PPStr}}
   catch
     _:Error -> {error, Error}
   end.

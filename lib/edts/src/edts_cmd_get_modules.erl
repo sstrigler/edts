@@ -41,11 +41,13 @@
 spec() ->
   [nodename].
 
+-spec execute(edts_cmd:ctx()) -> {ok, [module()]}.
+
 execute(Ctx) ->
   Node = orddict:fetch(nodename, Ctx),
   case edts:call(Node, edts_code, modules, []) of
     {ok, Modules} ->
-      {ok, [atom_to_binary(M, utf8) || M <- Modules]};
+      {ok, Modules};
     {error, _} = Err -> Err
   end.
 

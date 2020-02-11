@@ -43,10 +43,16 @@
 spec() ->
   [].
 
+-spec execute(edts_cmd:ctx()) -> {ok, #{event => [#{node => node(),
+                                                    class => atom(),
+                                                    type => atom(),
+                                                    info => [{atom(), atom() | integer()}]
+                                                   }]}}.
+
 execute(Ctx) ->
     try
         {ok, Event} = edts_event:listen(),
-        {ok, #{<<"event">> => lists:map(fun format_events/1, Event)}}
+        {ok, #{event => Event}}
     catch
         C:E:S ->
             ?LOG_ERROR("Event Listener failed with ~p:~p~nStacktrace:~n~p",
@@ -55,20 +61,6 @@ execute(Ctx) ->
     end.
 
 %%%_* Internal functions =======================================================
-
-format_events({node, N}) when is_atom(N) ->
-  {<<"node">>, atom_to_binary(N, utf8)};
-format_events({class, C}) when is_atom(C) ->
-  {<<"class">>, atom_to_binary(C, utf8)};
-format_events({type, Ty}) when is_atom(Ty) ->
-  {<<"type">>, atom_to_binary(Ty, utf8)};
-format_events({info, I}) ->
-  {<<"type">>, lists:map(fun format_info/1, I)}.
-
-format_info({K, V}) when is_atom(V) ->
-  {atom_to_binary(K, utf8), atom_to_binary(V, utf8)};
-format_info({K, V}) when is_integer(V) ->
-  {atom_to_binary(K, utf8), V}.
 
 %%%_* Emacs ============================================================
 %%% Local Variables:

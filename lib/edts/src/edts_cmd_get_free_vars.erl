@@ -41,6 +41,9 @@
 spec() ->
   [code].
 
+-spec execute(edts_cmd:ctx()) -> {ok,
+                                  #{vars => [atom()]} |
+                                  #{errors => [edts_cmd:issue()]}}.
 execute(Ctx) ->
   Code = orddict:fetch(code, Ctx),
   case edts_code:free_vars(Code) of
@@ -52,10 +55,10 @@ execute(Ctx) ->
 %%%_* Internal functions =======================================================
 
 format_error({Type, File, Line, Desc}) ->
-  #{ <<"type">> => atom_to_binary(Type, utf8)
-   , <<"file">> => list_to_binary(File)
-   , <<"line">> => Line
-   , <<"description">> => list_to_binary(Desc)}.
+  #{ type => Type
+   , file => File
+   , line => Line
+   , description => Desc}.
 
 
 %%%_* Emacs ====================================================================

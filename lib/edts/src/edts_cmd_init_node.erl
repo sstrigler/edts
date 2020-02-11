@@ -49,6 +49,8 @@ spec() ->
    project_include_dirs,
    erlang_cookie].
 
+-spec execute(edts_cmd:ctx()) -> {ok, #{}}.
+
 execute(Ctx) ->
   edts:init_node(orddict:fetch(project_name,         Ctx),
                  orddict:fetch(nodename,             Ctx),
@@ -56,7 +58,8 @@ execute(Ctx) ->
                  orddict:fetch(project_lib_dirs,     Ctx),
                  orddict:fetch(app_include_dirs,     Ctx),
                  orddict:fetch(project_include_dirs, Ctx),
-                 orddict:fetch(erlang_cookie,        Ctx)).
+                 orddict:fetch(erlang_cookie,        Ctx)),
+    {ok, #{}}.
 
 
 

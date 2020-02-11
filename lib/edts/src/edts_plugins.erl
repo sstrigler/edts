@@ -138,17 +138,19 @@ do_execute(Node, Plugin, Cmd, Input) ->
 
     %% The call returned an error
     {ok, {error, E}} ->
-      {ok, [{result, error}, {return, to_ret_str(E)}]};
+      {ok, #{result => error,
+             return => to_ret_str(E)}};
 
     %% All is well
     {ok, {ok, Ret}} ->
-      {ok, [{result, ok}, {return, convert_return(Ret)}]};
+      {ok, #{result => ok,
+             return => convert_return(Ret)}};
 
     %% Local calls
     {ok, ok} ->
-      {ok, [{result, ok}]};
+      {ok, #{result => ok}};
     {ok, Ret} ->
-      {ok, [{result, ok}, {return, convert_return(Ret)}]}
+      {ok, #{result => ok, return => convert_return(Ret)}}
   end.
 
 convert_params(Params, Specs) ->
@@ -169,7 +171,7 @@ convert_return(Ret) when is_list(Ret) ->
               (_)                       -> false
            end,
   case lists:all(IsProp, Ret) of
-    true  -> [{K, convert_return(V)} || {K, V} <- Ret];
+    true  -> maps:from_list([{K, convert_return(V)} || {K, V} <- Ret]);
     false -> [convert_return(V) || V <- Ret]
   end;
 convert_return(Ret) when is_tuple(Ret) -> to_ret_str(Ret);

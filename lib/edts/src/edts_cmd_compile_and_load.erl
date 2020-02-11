@@ -41,6 +41,10 @@
 spec() ->
   [nodename, file].
 
+-spec execute(edts_cmd:ctx()) -> {ok, #{result => ok | error,
+                                        warnings => [edts_cmd:issue()],
+                                        errors => [edts_cmd:issue()]
+                                       }}.
 execute(Ctx) ->
     Node     = orddict:fetch(nodename, Ctx),
     Filename = orddict:fetch(file, Ctx),
@@ -48,17 +52,17 @@ execute(Ctx) ->
         edts:call(Node, edts_code, compile_and_load, [Filename]),
     Errors   = [format_error(Error) || Error <- Errors0],
     Warnings = [format_error(Warning) || Warning <- Warnings0],
-    {ok, #{<<"result">> => atom_to_binary(Result, utf8),
-           <<"warnings">> => Warnings,
-           <<"errors">> => Errors}}.
+    {ok, #{result => Result,
+           warnings => Warnings,
+           errors => Errors}}.
 
 %%%_* Internal functions =======================================================
 
 format_error({Type, File, Line, Desc}) ->
-  #{ <<"type">> => atom_to_binary(Type, utf8)
-   , <<"file">> => list_to_binary(File)
-   , <<"line">> => Line
-   , <<"description">> => list_to_binary(Desc)}.
+  #{ type => Type
+   , file => File
+   , line => Line
+   , description => Desc}.
 
 
 %%%_* Emacs ============================================================

@@ -41,9 +41,10 @@
 spec() ->
   [].
 
+-spec execute(edts_cmd:ctx()) -> {ok, #{nodes => [node()]}}.
 execute(_) ->
   {ok, Nodes} = edts:nodes(),
-  {ok, #{<<"nodes">> => [atom_to_binary(N, utf8) || N <- Nodes]}}.
+  {ok, #{nodes => Nodes}}.
 
 %%%_* Internal functions =======================================================
 
